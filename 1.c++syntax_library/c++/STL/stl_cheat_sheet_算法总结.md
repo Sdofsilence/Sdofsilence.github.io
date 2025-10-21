@@ -66,10 +66,10 @@
 * is_partitioned partition stable_partition partition_point
 
 ### 排序
-* sort stable_sort partial_sort is_sorted is_sorted_until nth_element
+* sort stable_sort partial_sort(topk) is_sorted is_sorted_until nth_element(快速选择算法)
 
 ### 二分(在已划分范围上)
-* lower_bound upper_bound equal_range binary_search
+* lower_bound(最常用返回iter) upper_bound equal_range(前两个的组合) binary_search(只有判断)
 
 ### 集合(在已排序范围上)
 * includes set_union set_intersection set_difference set_symmetric_difference

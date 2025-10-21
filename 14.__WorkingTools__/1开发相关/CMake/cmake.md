@@ -6,7 +6,9 @@
 * 现代cmake教程<https://crossroadw.github.io/ModernCMake/> 有点粗糙但是适合快速浏览
 * Modern CMake 简体中文版<https://modern-cmake-cn.github.io/Modern-CMake-zh_CN/> 推荐"现代CMake"(介绍有推荐书籍)
 * 书栈网cmake Cookbook<https://www.bookstack.cn/read/CMake-Cookbook/README.md> 内容丰富适合系统学习(耗时深入)
+* b站“只喝白开水”<https://b23.tv/ZwNlEbm> 一个现代cmake（各种推荐例如vcpkg）的教学合集
 * b站“爱编程的大丙”cmake保姆级教程<https://subingwen.cn/cmake/CMake-primer/> 适合快速学习或者立刻上手
+* 现代 CMake 入门<[An Introduction to Modern CMake &#8212; Modern CMake](https://cliutils.gitlab.io/modern-cmake/README.html)> 来自 一些实践知乎.md
 * 在vs studio中使用cmake 项目 microsoft learn<https://learn.microsoft.com/zh-cn/cpp/build/cmake-projects-in-visual-studio?view=msvc-170> (不同于此,vs studio中的(打开文件夹)可以基于.json文件(CppProperties.json,task.vs.json,launch.vs.json三个json文件)和文件夹的项目而无需生成项目或解决方案)
 
 ## 跨平台的问题
