@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>4c++内存模型与原子类型 - My Blog</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "4c++\u5185\u5b58\u6a21\u578b\u4e0e\u539f\u5b50\u7c7b\u578b";
+        var mkdocs_page_input_path = "006.multithreads_and_parallines\\04c++\u5185\u5b58\u6a21\u578b\u4e0e\u539f\u5b50\u7c7b\u578b.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> My Blog
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../readme/">这是一个笔记或知识记录项目</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">001.c++syntax library</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/unsigned%E6%97%A0%E7%AC%A6%E5%8F%B7%E7%B1%BB%E5%9E%8B%E9%97%AE%E9%A2%98/">避免使用无符号数（但是size()返回的无符号）</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >C++</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/RVO_NRVO/">RVO NRVO</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/c%2B%2B111417%E5%85%B3%E9%94%AE%E5%AD%97/">c++关键字</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/c%2B%2Butf8/">c++中使用utf-8</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/c%2B%2B%E5%8D%9A%E5%AE%A2%E5%90%88%E9%9B%86/">C++博客合集</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/cpp%E7%B1%BB%E5%9E%8B%E6%94%AF%E6%8C%81%28%E4%B8%BB%E9%A2%98%E6%95%B0%E5%80%BC%E6%9E%81%E9%99%90%29/">c++类型支持（额外类型、数值极限、RTTI）</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/operator_new%E6%93%8D%E4%BD%9C%E7%AC%A6%E9%87%8D%E8%BD%BD/">operator new 和 delete 重载的形式</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/resourse/">相关资源记录</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/shared_ptr%E4%BA%A7%E7%94%9F%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E7%9A%84%E5%9C%BA%E6%99%AF/">c++语法杂记</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/stl%E9%9A%8F%E6%9C%BA%E6%95%B0%E7%9A%84%E4%BD%BF%E7%94%A8/">c++\&lt;random>头文件的使用</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/%E5%B7%A6%E5%80%BC%E4%BA%A1%E5%80%BC%E7%BA%AF%E5%8F%B3%E5%80%BC/">c++表达式类别</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/%E5%BC%95%E7%94%A8%E5%8F%82%E6%95%B0/">c++引用参数</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/%E7%A7%BB%E5%8A%A8%E6%9E%84%E9%80%A0%E8%BF%90%E7%AE%97%E7%AC%A6%E7%9A%84%E5%86%99%E6%B3%95/">c++移动构造函数 与 移动赋值运算符的写法</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/%E7%B1%BB%E5%9E%8B%E6%93%A6%E9%99%A4%E4%BB%BB%E5%8A%A1%E5%AF%B9%E8%B1%A1%E5%8C%85%E8%A3%85/">c++类型擦除技术</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/%E7%B1%BB%E7%9A%84%E9%BB%98%E8%AE%A4%E5%87%BD%E6%95%B0%E7%94%9F%E6%88%90%E8%A7%84%E5%88%99/">类的默认函数生成规则</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >STL</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/STL/0.%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/">stl中的问题或者原理</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/STL/effectiveSTL/">effective STL</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/STL/inserter/">std::inserter_iterator</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/STL/stl_cheat_sheet_%E7%AE%97%E6%B3%95%E6%80%BB%E7%BB%93/">c++stl cheat sheet</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/STL/stl%E5%AD%A6%E4%B9%A0%E7%BD%91%E5%9D%80/">c++stl</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/STL/%E5%AE%B9%E5%99%A8%E5%BA%93%E5%88%9D%E5%A7%8B%E5%8C%96%E5%92%8C%E8%B5%8B%E5%80%BC/">c++stl容器库初始化和赋值参数总结</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/STL/%E8%BF%90%E7%AE%97%E7%AC%A6%E5%87%BD%E6%95%B0%E5%AF%B9%E8%B1%A1/">c++针对常用的【算术、比较、逻辑、位运算】定义了函数对象</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >C++111417新特性即库头文件</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/c%2B%2B111417%E6%96%B0%E7%89%B9%E6%80%A7%E5%8D%B3%E5%BA%93%E5%A4%B4%E6%96%87%E4%BB%B6/c%2B%2B111417cppreference%E7%AE%80%E4%BB%8B/">c++11、14、17、20cppreference简介</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/c%2B%2B111417%E6%96%B0%E7%89%B9%E6%80%A7%E5%8D%B3%E5%BA%93%E5%A4%B4%E6%96%87%E4%BB%B6/c%2B%2B11%E7%BB%B4%E5%9F%BA%E7%99%BE%E7%A7%91/">c++11新特性</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/c%2B%2B111417%E6%96%B0%E7%89%B9%E6%80%A7%E5%8D%B3%E5%BA%93%E5%A4%B4%E6%96%87%E4%BB%B6/c%2B%2B14%E7%BB%B4%E5%9F%BA%E7%99%BE%E7%A7%91/">c++14新特性 C++14的主要目的对c++11的漏洞修复和小的改进</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/c%2B%2B111417%E6%96%B0%E7%89%B9%E6%80%A7%E5%8D%B3%E5%BA%93%E5%A4%B4%E6%96%87%E4%BB%B6/c%2B%2B17%E7%BB%B4%E5%9F%BA%E7%99%BE%E7%A7%91/">c++17新特性</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/c%2B%2B111417%E6%96%B0%E7%89%B9%E6%80%A7%E5%8D%B3%E5%BA%93%E5%A4%B4%E6%96%87%E4%BB%B6/googlec%2B%2B%E5%BC%80%E6%BA%90%E9%A3%8E%E6%A0%BC%E6%8C%87%E5%8D%97/">log</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/c%2B%2B111417%E6%96%B0%E7%89%B9%E6%80%A7%E5%8D%B3%E5%BA%93%E5%A4%B4%E6%96%87%E4%BB%B6/modernc%2B%2Bprogrammingcookbook/">modern c++ programming cookbook</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/c%2B%2B111417%E6%96%B0%E7%89%B9%E6%80%A7%E5%8D%B3%E5%BA%93%E5%A4%B4%E6%96%87%E4%BB%B6/todo%E6%B1%87%E6%80%BBc%2B%2B11%E5%BF%AB%E9%80%9F%E8%AE%B0%E5%BF%86%E7%A4%BA%E4%BE%8B/">todo 2025.3.16</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/c%2B%2B111417%E6%96%B0%E7%89%B9%E6%80%A7%E5%8D%B3%E5%BA%93%E5%A4%B4%E6%96%87%E4%BB%B6/%E5%8F%AF%E8%BF%90%E8%A1%8C%E7%9A%84%20C%2B%2B11141720%E7%A4%BA%E4%BE%8B/">c++98/11/14/17/20示例</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/c%2B%2B111417%E6%96%B0%E7%89%B9%E6%80%A7%E5%8D%B3%E5%BA%93%E5%A4%B4%E6%96%87%E4%BB%B6/%E7%8E%B0%E4%BB%A3c%2B%2B%E6%95%99%E7%A8%8B_%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8Bc%2B%2B11141720/">现代c++教程：快速上手c++11、14、17、20</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >C++模版编程</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/c%2B%2B%E6%A8%A1%E7%89%88%E7%BC%96%E7%A8%8B/c%2B%2B%E6%A8%A1%E7%89%88%E6%A6%82%E5%BF%B5/">模版概论</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/c%2B%2B%E6%A8%A1%E7%89%88%E7%BC%96%E7%A8%8B/c%2B%2B%E6%A8%A1%E7%89%88%E7%BC%96%E7%A8%8B%E5%8F%98%E8%BF%81/">c++各个版本关于模板和泛型的变化</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/c%2B%2B%E6%A8%A1%E7%89%88%E7%BC%96%E7%A8%8B/%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99/">cpp模版资料</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Modern c++</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" >C++17indetail</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/modern_c%2B%2B/c%2B%2B17indetail/c%2B%2B17%E8%AF%A6%E8%A7%A3/">c++ 17 in detail c++17详解</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >C++17完全指南</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/modern_c%2B%2B/c%2B%2B17%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/c%2B%2B17compeleteguide/">c++17 the complete guide</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >C++20完全指南</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/modern_c%2B%2B/c%2B%2B20%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/c%2B%2B20%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/">c++20 the complete guide</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >Effective modernc++</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/modern_c%2B%2B/effective_modernc%2B%2B/github%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91/">effective modern c++ github 中文翻译</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Threadpool</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/threadpool/threadpool/">网址</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >错误处理</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%2B%2B/%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/expected/">expected 基于 类型系统 的错误处理</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Cc++输入输出与字符串处理总结</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/cc%2B%2B%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E4%B8%8E%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86%E6%80%BB%E7%BB%93/1readme/">c++字符串库 和 文本处理库</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/cc%2B%2B%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E4%B8%8E%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86%E6%80%BB%E7%BB%93/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86c%2B%2B/">c++字符串处理</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/cc%2B%2B%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E4%B8%8E%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86%E6%80%BB%E7%BB%93/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86c/">c字符串处理</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/cc%2B%2B%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E4%B8%8E%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86%E6%80%BB%E7%BB%93/%E8%BE%93%E5%85%A5%E7%9A%84%E5%8C%BA%E5%88%ABcc%2B%2Bfgetsgetline/">输入对于\n和\0的处理区别</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/cc%2B%2B%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E4%B8%8E%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86%E6%80%BB%E7%BB%93/%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BAc%2B%2B/">c++输入输出</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/cc%2B%2B%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E4%B8%8E%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86%E6%80%BB%E7%BB%93/%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BAc/">c 输入输出 分标准库和glic POSIX平台</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >C语言</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >C常用函数即头文件</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%E8%AF%AD%E8%A8%80/c%E5%B8%B8%E7%94%A8%E5%87%BD%E6%95%B0%E5%8D%B3%E5%A4%B4%E6%96%87%E4%BB%B6/%E5%B8%B8%E7%94%A8%E5%BA%93%E5%87%BD%E6%95%B0/">常用库函数文件即大致包含的函数</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Glic</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../001.c%2B%2Bsyntax_library/c%E8%AF%AD%E8%A8%80/glic/readme/">Readme</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">002.alogrithem</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../002.alogrithem/think_data_structures/">Think Data Structures: Algorithms and Information Retrieval in Java的翻译 《数据结构思维》</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >一些分散的算法问题集合</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../002.alogrithem/%E4%B8%80%E4%BA%9B%E5%88%86%E6%95%A3%E7%9A%84%E7%AE%97%E6%B3%95%E9%97%AE%E9%A2%98%E9%9B%86%E5%90%88/%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B1%82%E5%80%BC/">表达式求值</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >刷题</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../002.alogrithem/%E5%88%B7%E9%A2%98/leetcode_python_funcations/">Leetcode python funcations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../002.alogrithem/%E5%88%B7%E9%A2%98/%E5%88%86%E6%95%A3%E7%9A%84%E5%B0%8F%E8%AE%B0%E5%BD%95/">c++算法刷题分散记录</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../002.alogrithem/%E5%88%B7%E9%A2%98/%E5%A4%A7%E7%BA%B2_%E7%BD%91%E7%AB%99/">刷题大纲或其他人的总结</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../002.alogrithem/%E5%88%B7%E9%A2%98/%E8%B0%B7%E6%AD%8C%E7%BD%91%E7%9B%98top50algorithms_datasructrues/">C++ Standard Template Library (STL) Notes Repository</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >字符串匹配算法</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../002.alogrithem/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D%E7%AE%97%E6%B3%95/%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8D%E7%AE%97%E6%B3%95/">字符串匹配算法</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">003.network programming</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../003.network_programming/web%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%BA%94%E7%94%A8%E6%9C%8D%E5%8A%A1%E5%99%A8/">web服务器和应用服务器</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../003.network_programming/%E7%BB%93%E6%9E%84%E5%8C%96_%E5%8D%8A%E7%BB%93%E6%9E%84%E5%8C%96_%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90%E7%AE%97%E6%B3%95/">结构化、半结构化、二进制文件解析方法</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Libevent libuv 非阻塞io框架</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/libevent_libuv_%E9%9D%9E%E9%98%BB%E5%A1%9Eio%E6%A1%86%E6%9E%B6/libevent/">libevent</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Openssl gmssl https编程</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/openssl_gmssl_https%E7%BC%96%E7%A8%8B/tls_ssl_https_openssl/">参考</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Unix network programming</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/unix_network_programming/0-0.%E9%80%9F%E8%A7%88glic%E5%85%B3%E4%BA%8Esockek%E7%9A%84%E7%9F%A5%E8%AF%86%E7%82%B9/">glic 套接字速览</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/unix_network_programming/fork_vfork_exec%E7%B3%BB%E5%88%97%E5%87%BD%E6%95%B0/">unix fork函数解释</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/unix_network_programming/linux%E6%96%B0%E7%9A%84API%20signalfd%E3%80%81timerfd%E3%80%81eventfd%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E2013%E5%B9%B4/">signalfd timerfd eventfd使用说明</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/unix_network_programming/posix%E4%BA%94%E7%A7%8Dio%E6%A8%A1%E5%9E%8B/">转载自博客园：苦涩的茶：linux的五种网络IO模型详解https://www.cnblogs.com/liushui-sky/p/12917347.html</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/unix_network_programming/readme/">log</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/unix_network_programming/return_exit__exit/">exit系列比较</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/unix_network_programming/select_poll_epoll/">unix网络编程 (io多路复用)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/unix_network_programming/send_recv%E8%BF%94%E5%9B%9E%E5%80%BC%E9%98%BB%E5%A1%9E%E5%92%8C%E9%9D%9E%E9%98%BB%E5%A1%9E/">send recv返回值</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/unix_network_programming/setsocketopt%E5%92%8Cfcntl%E5%87%BD%E6%95%B0/">setsockopt fcntl</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/unix_network_programming/socket%E7%BC%96%E7%A8%8B%E5%B8%B8%E7%94%A8%E5%A4%B4%E6%96%87%E4%BB%B6/">socket头文件分类介绍</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/unix_network_programming/socket%E9%9D%9E%E9%98%BB%E5%A1%9E%E6%A8%A1%E5%BC%8F/">socket 设置非阻塞模式</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/unix_network_programming/%E6%9D%82%E9%A1%B9/">socket 网络编程杂项</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Win socket</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/win_socket/poll_select_iocp/">windows 下的select iocp</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/win_socket/winsocket/">winsock</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >实验</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/%E5%AE%9E%E9%AA%8C/todo_httpserver/">Todo httpserver</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/%E5%AE%9E%E9%AA%8C/todo%E5%8F%82%E8%80%83/">tcp/udp 实验</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >网络协议tcpip http https</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AEtcpip_http_https/HTTP1_1%E5%92%8CHTTP2_0%E7%9A%84%E8%AF%B7%E6%B1%82%E6%8B%86%E5%8C%85%E6%96%B9%E5%BC%8F/">HTTP1.1和HTTP2.0的请求拆包方式</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AEtcpip_http_https/MTU_MSS/">mtu mss</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AEtcpip_http_https/Session_Cookie_Token/">Session、Cookie与Token的区别</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AEtcpip_http_https/dns_cdn%E8%A7%A3%E6%9E%90/">dns和cdn相关概念</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AEtcpip_http_https/http_%E6%B6%88%E6%81%AF%E6%A0%BC%E5%BC%8F_%E8%A7%A3%E6%9E%90_%E6%B5%81%E7%A8%8B_%E7%BC%96%E7%A0%81/">HTTP相关知识</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AEtcpip_http_https/https_ssl_tls/">问题：</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AEtcpip_http_https/http%E7%8A%B6%E6%80%81%E7%A0%81/">http状态码</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AEtcpip_http_https/tcpip%E6%8A%A5%E6%96%87%E6%A0%BC%E5%BC%8F%E5%92%8C%E8%A7%A3%E9%87%8A/">tcp报文和相关概念</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AEtcpip_http_https/tcp%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B/">tcp三次握手 四次挥手</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AEtcpip_http_https/tcp%E7%B2%98%E5%8C%85/">tcp 粘包</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AEtcpip_http_https/%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3_%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6/">滑动窗口和拥塞控制</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >开源库http解析</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AEtcpip_http_https/%E5%BC%80%E6%BA%90%E5%BA%93http%E8%A7%A3%E6%9E%90/http_server%E5%BC%80%E6%BA%90%E5%BA%93/">C++ HTTP Server 开源库 汇总级别整理</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AEtcpip_http_https/%E5%BC%80%E6%BA%90%E5%BA%93http%E8%A7%A3%E6%9E%90/httplib%E5%BA%93/">httplib</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AEtcpip_http_https/%E5%BC%80%E6%BA%90%E5%BA%93http%E8%A7%A3%E6%9E%90/http%E8%AF%B7%E6%B1%82%E5%BA%93_libcurl%E7%AD%89%E7%AD%89/">http请求非常多的库</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AEtcpip_http_https/%E5%BC%80%E6%BA%90%E5%BA%93http%E8%A7%A3%E6%9E%90/%E5%BC%80%E6%BA%90http%E8%A7%A3%E6%9E%90%E5%99%A8/">http解析</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >网络软件开发框架DPDK XDP SPDK</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../003.network_programming/%E7%BD%91%E7%BB%9C%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E6%A1%86%E6%9E%B6DPDK_XDP_SPDK/DPDK_XDP/">概念</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">004.qt</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../004.qt/qt_digitser_com/">qt 概念</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../004.qt/qt%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/">qt 一个概念问题</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">005.database</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Nosql</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../005.database/nosql/readme/">nosql</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Sql</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../005.database/sql/0.sql/">sql</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../005.database/sql/1.sql%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">sql主要知识</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../005.database/sql/2.sql%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E8%AF%A6%E7%BB%86%E8%A7%A3%E9%87%8A/">这是 sql基础知识.md 的拓展是涉及的内容的详细解释或注意事项</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../005.database/sql/3.sql%E8%BF%9B%E9%98%B6_%E5%BB%BA%E6%A8%A1_%E5%AE%89%E5%85%A8_%E8%BF%9E%E6%8E%A5/">Advancde Sql &amp; Database</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../005.database/sql/4.sql%E4%BC%98%E5%8C%96%E5%92%8C%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86%E5%92%8C%E9%94%81%E7%AD%89%E8%BF%9B%E9%98%B6%E9%9D%A2%E8%AF%95%E5%BF%85%E5%A4%87/">这是一个面向面试的专题</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../005.database/sql/99.NULL%E5%80%BC%E9%97%AE%E9%A2%98/">sql中的NULL</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../005.database/sql/99.group_by%E7%9A%84%E5%BD%B1%E5%93%8D%E8%8C%83%E5%9B%B4/">GROUP BY 对其他子句的影响</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../005.database/sql/99.sql%E5%AD%90%E5%8F%A5%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/">sql子句的执行顺序</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../005.database/sql/99.todo.mysql%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86.%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84b%E6%A0%91b%E5%8A%A0%E6%A0%91/">99.todo.mysql底层原理.数据结构b树b加树</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../005.database/sql/99.%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0/">sql窗口函数</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../005.database/sql/99mysql%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">sql中的正则表达式（标准没有关于正则表达式的规定所以都是特定于数据库的）</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">006.multithreads and parallines</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../00c%2B%2Bconcurrency_in_action2%E9%80%9F%E8%AF%BBcontents/">\&lt;c++并发编程实战>主要内容</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../01%E7%BA%BF%E7%A8%8B%E7%AE%A1%E7%90%86/">1线程管理</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../02%E7%BA%BF%E7%A8%8B%E9%97%B4%E5%85%B1%E4%BA%AB%E6%95%B0%E6%8D%AE/">2线程间共享数据</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../03%E5%90%8C%E6%AD%A5%E5%B9%B6%E5%8F%91%E6%93%8D%E4%BD%9C/">3同步并发操作</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">4c++内存模型与原子类型</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#41-c11">4.1 c++11内存模型</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#42">4.2 原子类型</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#43">4.3 同步操作并强制执行顺序</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#44">4.4 总结</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../05%E5%9F%BA%E4%BA%8E%E9%94%81%E7%9A%84%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1/">5基于锁的并发数据结构设计</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../06%E6%97%A0%E9%94%81%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1/">6无锁数据结构的设计</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../07%E5%B9%B6%E5%8F%91%E4%BB%A3%E7%A0%81%E8%AE%BE%E8%AE%A1/">并发代码设计</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../08%E9%AB%98%E7%BA%A7%E7%BA%BF%E7%A8%8B%E7%AE%A1%E7%90%86/">08高级线程管理</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../09c%2B%2B17%E5%B9%B6%E8%A1%8C%E7%AE%97%E6%B3%95/">09c++17并行算法</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../10%E6%B5%8B%E8%AF%95%E5%92%8C%E8%B0%83%E8%AF%95%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%BA%94%E7%94%A8/">10测试和调试多线程应用</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../21%E6%89%80%E6%9C%89mutex%E4%BA%92%E6%96%A5%E9%87%8F%E7%AE%A1%E7%90%86%E5%99%A8/">c++管理互斥量（mutex）的 RAII 包装器</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../22lock%2Block_gard/">std::lock+lock_gard处理多个互斥锁</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../23stdmutex%E4%B8%8D%E6%94%AF%E6%8C%81%E7%A7%BB%E5%8A%A8%E8%AF%AD%E4%B9%89/">std::mutex不支持拷贝和移动语义</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../24stdcopy_exception%E5%92%8Cstdcurrent_exception/">std::copy_exception() 和 std::current_exception() 在处理异常时的区别</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../25std_async_packaged_task_promise/">std::async std::packaged_task std::promise</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../26%E8%99%9A%E5%81%87%E5%94%A4%E9%86%92%E5%92%8C%E6%97%A0%E9%99%90%E7%AD%89%E5%BE%85/">wait()虚假唤醒 和 无线等待问题</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../27%E6%94%AF%E6%8C%81%E8%B6%85%E6%97%B6%E7%9A%84%E5%87%BD%E6%95%B0/">c++标准中支持超时的函数</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../28%E7%BA%BF%E7%A8%8B%E9%97%B4%E5%90%8C%E6%AD%A5%E7%90%86%E8%A7%A3/">线程间同步的理解</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../29%E9%A5%A5%E9%A5%BF/">29饥饿</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../30%E6%83%8A%E7%BE%A4/">30惊群</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../31%E6%AD%BB%E9%94%81_%E9%93%B6%E8%A1%8C%E5%AE%B6%E7%AE%97%E6%B3%95/">死锁</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../32%E7%BA%BF%E7%A8%8B%E5%85%B1%E4%BA%AB%E4%BA%86%E5%93%AA%E4%BA%9B%E8%BF%9B%E7%A8%8B%E8%B5%84%E6%BA%90/">线程进程关系</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../999todolist/">999todolist</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >资源</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../%E8%B5%84%E6%BA%90/%E5%A4%A7%E6%96%87%E4%BB%B6lfs%E6%97%A0%E6%B3%95%E4%B8%8A%E4%BC%A0%E8%AE%B0%E5%BD%95/">资源记录</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../%E8%B5%84%E6%BA%90/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E7%9B%B8%E5%85%B3%E7%BD%91%E9%A1%B5/">并发相关网址</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">007.interview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >小林coding 技术图解</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../007.interview/%E5%B0%8F%E6%9E%97coding_%E6%8A%80%E6%9C%AF%E5%9B%BE%E8%A7%A3/%E5%88%86%E7%B1%BB/">微信公众号：小林coding</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >简历</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../007.interview/%E7%AE%80%E5%8E%86/%E7%AE%80%E5%8E%86%E6%A8%A1%E6%9D%BF/">简历模板</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">008.unxi system programming</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../008.unxi_system_programming/todo_ipc%E9%80%9A%E4%BF%A1/">进程间通信方式</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../008.unxi_system_programming/%E7%9B%B8%E5%85%B3%E7%BD%91%E5%9D%80/">linux/unix系统编程</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Glic</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../008.unxi_system_programming/glic/readme/">Readme</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">010.组件 日志 内存 池式结构 计时器</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >定时器</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../010.%E7%BB%84%E4%BB%B6_%E6%97%A5%E5%BF%97_%E5%86%85%E5%AD%98_%E6%B1%A0%E5%BC%8F%E7%BB%93%E6%9E%84_%E8%AE%A1%E6%97%B6%E5%99%A8/%E5%AE%9A%E6%97%B6%E5%99%A8/%E5%AE%9A%E6%97%B6%E5%99%A8/">定时器的实现方法和相关数据结构（set,heap,skiptable,时间轮）</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >日志库</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../010.%E7%BB%84%E4%BB%B6_%E6%97%A5%E5%BF%97_%E5%86%85%E5%AD%98_%E6%B1%A0%E5%BC%8F%E7%BB%93%E6%9E%84_%E8%AE%A1%E6%97%B6%E5%99%A8/%E6%97%A5%E5%BF%97%E5%BA%93/spdlog%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">Spdlog源码分析</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../010.%E7%BB%84%E4%BB%B6_%E6%97%A5%E5%BF%97_%E5%86%85%E5%AD%98_%E6%B1%A0%E5%BC%8F%E7%BB%93%E6%9E%84_%E8%AE%A1%E6%97%B6%E5%99%A8/%E6%97%A5%E5%BF%97%E5%BA%93/%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%AE%9E%E7%8E%B0clog/">一个简单的实现clog</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">011.单元测试</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../011.%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/">单元测试书籍推荐</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Cmake中的ctest</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../011.%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/Cmake%E4%B8%AD%E7%9A%84ctest/%E5%8E%9F%E7%94%9Fctest_catch2_googtest/">原生ctest catch2 googtest</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Vs studio中的测试框架</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../011.%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/vs_studio%E4%B8%AD%E7%9A%84%E6%B5%8B%E8%AF%95%E6%A1%86%E6%9E%B6/boost.test/">Boost.test</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../011.%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/vs_studio%E4%B8%AD%E7%9A%84%E6%B5%8B%E8%AF%95%E6%A1%86%E6%9E%B6/catch2/">Catch2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../011.%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/vs_studio%E4%B8%AD%E7%9A%84%E6%B5%8B%E8%AF%95%E6%A1%86%E6%9E%B6/googtest/">Googtest</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">012.gcc gdb 性能分析工具</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Gcc</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../012.gcc_gdb_%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7/gcc/gcc_compile_options/">gcc命令选项</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Gdb</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../012.gcc_gdb_%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7/gdb/coredump%E8%AE%BE%E7%BD%AE%E5%92%8C%E5%88%86%E6%9E%90/">coredup设置、生成和分析</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../012.gcc_gdb_%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7/gdb/gdb/">gdb调试器的使用</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">013.opensource applications</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Fmt</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../013.opensource_applications/fmt/fmt/">Fmt</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Html解析</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../013.opensource_applications/html%E8%A7%A3%E6%9E%90/readme/">html解析库</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Json库</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../013.opensource_applications/json%E5%BA%93/json%E5%BA%93%E5%AF%B9%E6%AF%94/">c/c++json库对比</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Log4c</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../013.opensource_applications/log4c/readme/">log4c a c log library from log4j from java</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Utf8+国际化编码.md</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../013.opensource_applications/utf8%2B%E5%9B%BD%E9%99%85%E5%8C%96%E7%BC%96%E7%A0%81.md/utf8_other_codec/">utf8的支持</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >网络库 通信库</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../013.opensource_applications/%E7%BD%91%E7%BB%9C%E5%BA%93_%E9%80%9A%E4%BF%A1%E5%BA%93/%E5%BC%80%E6%BA%90%E7%BD%91%E7%BB%9C%E6%A1%86%E6%9E%B6%2Bc%E5%BC%80%E6%BA%90%E5%BA%93%E9%9B%86%E5%90%88/">资源</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">014.  WorkingTools  </span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >1开发相关</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >CMake</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/CMake/add_dependency_add_custom_command_target/">依赖管理，或者说让一个目标的构建或者执行在某个目标的前后</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/CMake/cmake/">CMake 学习资源</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/CMake/cmake_schema_and_workflow/">workflow</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/CMake/cmake_vs_vsstudio_dev%E9%A1%B9%E7%9B%AEgithub%E5%8F%82%E8%80%83/">Cmake vs vsstudio dev项目github参考</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/CMake/%E4%B8%80%E4%BA%9B%E5%AE%9E%E8%B7%B5%E7%9F%A5%E4%B9%8E/">知乎回答</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >C++包管理</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" >Vcpkg</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/c%2B%2B%E5%8C%85%E7%AE%A1%E7%90%86/vcpkg/vcpkg/">vcpkg 的使用</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Docker</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/docker/docker_and_cli/">docker</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/docker/docker_compose_reference/">Docker compose reference</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/docker/dockerfile_reference/">dockerfile参考</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Git</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/git/git_workflow/">git workflow</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/git/git%E5%91%BD%E4%BB%A4%E5%8F%82%E6%95%B0%E8%A7%A3%E9%87%8A/">git 命令的参数解释</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/git/readme/">learn git 资源</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Ms gsl微软core guidelines实现</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/ms_gsl%E5%BE%AE%E8%BD%AFcore_guidelines%E5%AE%9E%E7%8E%B0/ms_gls_coreguidelines/">CppCoreGuidelines和它的实现ms-gls</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Vs code</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/vs_code/clangd_%E5%92%8Ccompile_commands.json%E6%96%87%E4%BB%B6/">Clangd 和compile commands.json文件</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/vs_code/profiles_in_vs_code/">Profiles in vs code</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/vs_code/vscode/">网址</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/vs_code/vscode_clangd_gcc_gdb_cmake%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">Vscode clangd gcc gdb cmake开发环境配置</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >Dev container</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/vs_code/dev_container/cmake_vs_vsstudio_dev%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83/">Cmake vs vsstudio dev项目参考</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/vs_code/dev_container/dev_container%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/">dev container作为 vs code插件的使用</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Vs studio</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/vs_studio/%E8%B0%83%E8%AF%95/">调试</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Wireshark</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/wireshark/wireshark/">wireshark</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >函数调用关系分析 项目地图 deepwiki</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E5%85%B3%E7%B3%BB%E5%88%86%E6%9E%90_%E9%A1%B9%E7%9B%AE%E5%9C%B0%E5%9B%BE_deepwiki/deepwiki_open%E5%BC%80%E6%BA%90_ollama%E9%83%A8%E7%BD%B2/">如何构建deepwiki-open工具</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/1%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E5%85%B3%E7%B3%BB%E5%88%86%E6%9E%90_%E9%A1%B9%E7%9B%AE%E5%9C%B0%E5%9B%BE_deepwiki/readme/">Readme</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >2其他</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Pdf在线编辑</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/2%E5%85%B6%E4%BB%96/pdf%E5%9C%A8%E7%BA%BF%E7%BC%96%E8%BE%91/url/">pdf 在线编辑</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Powershell</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/2%E5%85%B6%E4%BB%96/powershell/powershell/">powershell 学习记录</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Regex</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/2%E5%85%B6%E4%BB%96/regex/regex/">regex 语法或使用方法记录</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >Wsl</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/2%E5%85%B6%E4%BB%96/wsl/wsl/">wsl2中而配置</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" >双拼</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/2%E5%85%B6%E4%BB%96/%E5%8F%8C%E6%8B%BC/readme/">双拼</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../014.__WorkingTools__/2%E5%85%B6%E4%BB%96/%E5%8F%8C%E6%8B%BC/%E5%B0%8F%E7%8B%BC%E6%AF%ABrime/">小狼毫rime</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">015.math</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >概率论与数理统计</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../015.math/%E6%A6%82%E7%8E%87%E8%AE%BA%E4%B8%8E%E6%95%B0%E7%90%86%E7%BB%9F%E8%AE%A1/%E6%A6%82%E7%8E%87%E8%AE%BA%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/">概率论基本定义</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../015.math/%E6%A6%82%E7%8E%87%E8%AE%BA%E4%B8%8E%E6%95%B0%E7%90%86%E7%BB%9F%E8%AE%A1/%E7%A7%91%E6%95%B0%E7%BD%91/">科数网</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">016.design patterns</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../016.design_patterns/c%2B%2B%E7%89%B9%E6%80%A7%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">c++特性实现的设计模式</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../016.design_patterns/singleton_c%2B%2B11%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/">c++11以后的单例模式</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../016.design_patterns/todo%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%9C%BA%E6%99%AF%E7%9B%AE%E7%9A%84%E6%B1%87%E6%80%BB/">Todo设计模式场景目的汇总</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../016.design_patterns/%E5%90%95%E5%BB%BA%E5%BF%A0%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%88%86%E7%B1%BB/">八大设计原则(solid+3)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >吕建忠设计模式类图23种</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../016.design_patterns/%E5%90%95%E5%BB%BA%E5%BF%A0%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B1%BB%E5%9B%BE23%E7%A7%8D/%E6%B1%87%E6%80%BB/">设计模式类图汇总</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">017.Architectural Design</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../017.Architectural_Design/resoures_logs/">架构设计相关的资源记录</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">018.AI工具</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../018.AI%E5%B7%A5%E5%85%B7/11%E4%B8%AA%E5%A5%BD%E7%94%A8%E7%9A%84github%E5%BC%80%E6%BA%90ai%E7%9F%A5%E8%AF%86%E5%BA%93/">11个好用的 Github 开源 AI 知识库推荐</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">019.电脑软件</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../019.%E7%94%B5%E8%84%91%E8%BD%AF%E4%BB%B6/readme/">电脑软件记录</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../019.%E7%94%B5%E8%84%91%E8%BD%AF%E4%BB%B6/%E5%AD%97%E4%BD%93%E6%8E%A8%E8%8D%90/">字体文件相关记录</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../019.%E7%94%B5%E8%84%91%E8%BD%AF%E4%BB%B6/%E7%BB%86%E5%B0%8F%E7%9A%84%E6%8F%92%E4%BB%B6/">插件或者小的软件</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">020.golang</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../020.golang/to_.learn/">To .learn</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">021.博客网站</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >Github pages+静态博客框架</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../021.%E5%8D%9A%E5%AE%A2%E7%BD%91%E7%AB%99/github_pages%2B%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E6%A1%86%E6%9E%B6/github_pages/">Github pages</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../021.%E5%8D%9A%E5%AE%A2%E7%BD%91%E7%AB%99/github_pages%2B%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E6%A1%86%E6%9E%B6/%E5%8D%9A%E5%AE%A2%E6%A1%86%E6%9E%B6%E9%80%89%E6%8B%A9/">博客方案信息</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">050.python</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../050.python/python%E5%86%85%E7%BD%AE%E5%BA%93/">Python内置库</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../050.python/python%E5%AD%A6%E4%B9%A0%E7%BD%91%E7%AB%99/">python 学习网址</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">100.前端</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../100.%E5%89%8D%E7%AB%AF/html%E5%92%8Cjs%E8%84%9A%E6%9C%AC%E7%9A%84%E5%85%B3%E7%B3%BB/">html和js脚本的关系</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">101.资源</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../101.%E8%B5%84%E6%BA%90/cpp%E5%9B%9B%E5%A4%A7%E5%90%8D%E8%91%97%E6%96%B0%E6%97%A7/">c++书籍记录</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../101.%E8%B5%84%E6%BA%90/%E4%B9%A6%E7%B1%8D%E6%90%9C%E7%B4%A2%E7%BD%91%E5%9D%80/">电子板书籍搜索网站</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../101.%E8%B5%84%E6%BA%90/%E4%BE%AF%E6%9D%B0stl%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">giteeSGI STL source code analysis and note from 《STL源码剖析》 by 侯捷 （包含电子书、源码注释及测试代码）</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../101.%E8%B5%84%E6%BA%90/%E5%8D%9A%E5%AE%A2/">博客</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../101.%E8%B5%84%E6%BA%90/%E5%AD%A6%E4%B9%A0%E7%BD%91%E7%AB%99%2B%E5%9C%A8%E7%BA%BF%E7%9F%A5%E8%AF%86%E5%BA%93/">好的学习网站</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../101.%E8%B5%84%E6%BA%90/%E6%81%8B%E6%81%8B%E9%A3%8E%E5%B0%98%E7%9A%84%E7%BC%96%E7%A8%8B%E7%AC%94%E8%AE%B0/">恋恋风尘的编程笔记</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../101.%E8%B5%84%E6%BA%90/%E7%8E%8B%E9%94%AE%E4%BC%9Fc%2B%2B/">王健伟c++课程</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >books of leeHanley</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../101.%E8%B5%84%E6%BA%90/books_of_leeHanley/%E5%A4%A7%E6%96%87%E4%BB%B6lfs%E8%AE%B0%E5%BD%95/">programming books of lee's</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">104.todo.项目</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >校园bbs论坛管理系统设计与实现</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../104.todo.%E9%A1%B9%E7%9B%AE/%E6%A0%A1%E5%9B%ADbbs%E8%AE%BA%E5%9D%9B%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/url/">豆丁设计文档</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">105.科学上网</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../105.%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/host%E4%BF%AE%E6%94%B9/">hosts文件修改(有点用但是只能使部分的网址成功)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../105.%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/sni%E4%BF%AE%E6%94%B9/">sni</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../105.%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%A4%A7%E5%85%A8/">科学上网大全</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">My Blog</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">006.multithreads and parallines</li>
+      <li class="breadcrumb-item active">4c++内存模型与原子类型</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="4c">4c++内存模型与原子类型</h1>
+<h2 id="41-c11">4.1 c++11内存模型</h2>
+<ul>
+<li>4.1.1 对象和内存位置.这里有四个需要牢记的原则：<ol>
+<li>每一个变量都是一个对象，包括作为其成员变量的对象。</li>
+<li>每个对象至少占有一个内存位置。</li>
+<li>基本类型都有确定的内存位置(无论类型大小如何，即使他们是相邻的，或是数组的一部分)。</li>
+<li>相邻位域是相同内存中的一部分。</li>
+</ol>
+</li>
+<li>4.1.2 对象、内存位置和并发<ul>
+<li>部分对于C++的多线程来说是至关重要的：所有东西都在内存中。当两个线程访问不同的内存位置时，不会存在任何问题，一切都工作顺利。当两个线程访问同一个内存位置，就要小心了。如果没有线程更新数据，那还好；只读数据不需要保护或同步。当有线程对内存位置上的数据进行修改，那就有可能会产生条件竞争。</li>
+<li>为了避免条件竞争，两个线程就需要一定的执行顺序。第一种方式，使用互斥量来确定访问的顺序；当同一互斥量在两个线程同时访问前被锁住，那么在同一时间内就只有一个线程能够访问到对应的内存位置，所以后一个访问必须在前一个访问之后。另一种是使用原子操作(详见第2节中对于原子操作的定义)，决定两个线程的访问顺序。使用原子操作来规定顺序在第3节中介绍。当多于两个线程访问同一个内存地址时，对每个访问这都需要定义一个顺序。</li>
+<li>另一个重点是：当程序对同一内存地址中的数据访问存在竞争，可以使用原子操作来避免未定义行为。当然，这不会影响竞争的产生——原子操作并没有指定访问顺序——但原子操作把程序拉回到定义行为的区域内。在了解原子操作前，还有一个有关对象和内存地址的概念需要重点了解：修改顺序。</li>
+</ul>
+</li>
+<li>4.1.3 修改顺序(见4.3.1 *Modification order)<ul>
+<li>是指对于某个特定对象（比如一个变量），它的所有写操作（包括初始化）按照时间顺序排列起来的一个序列。这个顺序要求是全局一致的，所有线程必须看到相同的顺序，否则导致数据竞争，从而引发未定义行为。<ul>
+<li>对于非原子变量（如普通的 int、struct 类型等），你必须自己通过锁、内存屏障或其他同步手段来确保所有线程看到一致的修改顺序，否则就会导致数据竞争，从而引发未定义行为。</li>
+<li>对于原子变量（如 std::atomic<T>），编译器和 CPU 会自动插入适当的同步指令，以确保所有线程都能看到一致的修改顺序。</li>
+</ul>
+</li>
+<li>修改顺序的一致性要求。要求修改顺序是全局一致的，所有线程必须看到相同的顺序。</li>
+<li>不同对象间的顺序可以不一致。虽然每个对象的修改顺序是全局一致的，但不同对象之间的操作顺序可以在不同线程中有不同的观察结果。</li>
+</ul>
+</li>
+</ul>
+<h2 id="42">4.2 原子类型</h2>
+<ul>
+<li>原子操作是不可分割的操作。你不能从系统中的任何线程观察到这样的操作在半完成状态；它要么已经完成，要么没有完成。如果读取对象值的加载操作是原子的，并且对该对象的所有修改也是原子的，那么该加载将检索到对象的初始值或由其中一次修改存储的值。</li>
+<li>非原子操作可能会被另一个线程观察到只完成一半。如果这个操作是一个存储操作，那么其他线程看到的值，可能既不是存储前的值，也不是存储的值，而是别的什么值。如果非原子操作是一个加载操作，它可能先取到对象的一部分，然后值被另一个线程修改，然后它再取到剩余的部分，所以它取到的既不是第一个值，也不是第二个值，而是两个值的某种组合。</li>
+<li>
+<p>4.2.1 std::atomic类型</p>
+<ul>
+<li>标准原子类型定义在头文件 <atomic> 中。这些类型的所有操作都是原子的，语言定义中只有这些类型的操作是原子的，不过可以用互斥锁来模拟原子操作。实际上，标准原子类型的实现就可能是这样模拟出来的：它们(几乎)都有一个 is_lock_free() 成员函数，这个函数可以让用户查询某原子类型的操作是直接用的原子指令(x.is_lock_free() 返回 true )，还是内部用了一个锁结构( x.is_lock_free() 返回 false )。</li>
+<li>唯一不提供 is_lock_free() 成员函数的类型是 std::atomic_flag。该类型是一个非常简单的布尔标志，它保证是无锁的。一旦拥有一个简单的无锁布尔标志，就可以用它实现一个简单的锁，因此可以以此为基础实现所有其他原子类型。std::atomic_flag 类型的对象初始化为清除状态，然后可以进行查询和设置（使用 test_and_set() 成员函数）或清除（使用 clear() 成员函数）。除此之外没有其他任何操作(c++20添加了wait和test两个函数)。</li>
+<li>剩余的原子类型都是通过 std::atomic&lt;&gt; 类模板的特化进行访问的，这些类型功能更为全面，但可能不是无锁的。除了直接使用 std::atomic&lt;&gt; 类模板之外，您还可以使用 atomic_[type] 这样的名称集合来引用实现提供的原子类型。不要在同一程序中将这些替代名称与直接命名 std::atomic&lt;&gt; 特化混合使用，可能会导致不可移植的代码。除了基本的原子类型外，C++标准库还提供了一组与各种非原子标准库类型（如std::size_t atomic_size_t）相对应的原子类型的typedef。一般来说，针对您希望使用的 T，直接使用 std::atomic<T> 更为简单，而不是使用替代名称。</li>
+<li>标准原子类型在常规意义上是不可复制或不可赋值的，因为它们没有复制构造函数或复制赋值运算符。然而，它们确实支持对相应内置类型的赋值和隐式转换，以及直接的 load() 和 store() 成员函数，exchange()、compare_exchange_weak() 和 compare_exchange_strong()。它们还支持复合赋值运算符（在适当的情况下）：+=、-=、*=、|= 等，整型和 std::atomic&lt;&gt; 指针的专用化支持 ++ 和 --。这些操作分为三个类别：<ul>
+<li>1.Store操作，可选如下顺序：memory_order_relaxed, memory_order_release,memory_order_seq_cst。</li>
+<li>2.Load操作，可选如下顺序：memory_order_relaxed, memory_order_consume,memory_order_acquire, memory_order_seq_cst。</li>
+<li>3.Read-modify-write(读-改-写)操作，可选如下顺序：memory_order_relaxed,memory_order_consume, memory_order_acquire, memory_order_release,memory_order_acq_rel, memory_order_seq_cst。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>4.2.2-4.2.6介绍了每个原子类型支持的操作
+    | 操作 | atomic_flag | atomic\&lt;bool&gt; | atomic<T*> | atomic<integral_type> |atomic<other_type> |
+    |:---|:---|:---|:---|:---|:---|
+    | test_and_set | y |  |  |  |  |
+    | clear | y |  |  |  |  |
+    | is_lock_free |  | y | y | y | y |
+    | load |  | y | y | y | y |
+    | store |  | y | y | y | y |
+    | exchange |  | y | y | y | y |
+    | compare_exchange_weak<br>compare_exchange_strong |  | y | y | y | y |
+    | fetch_add,+= |  |  | y | y |  |
+    | fetch_sub,-= |  |  | y | y |  |
+    | fetch_or,|= |  |  |  | y |  |
+    | fetch_and,&amp;= |  |  |  | y |  |
+    | fetch_xor,^= |  |  |  | y |  |
+    | ++,-- |  |  | y | y |  |</p>
+</li>
+<li>4.2.7非成员的原子操作函数<ul>
+<li>对原子类型操作，不同的原子类型中也有等价的非成员函数存在。大多数非成员函数的命名与对应成员函数有关，需要“  atomic_”作为前缀(比如，std::atomic_load())。它们有两种变体：一种是不带标签，另一种带有显式后缀和一个或多个用于内存排序的附加参数（例如，std::atomic_store(&amp;atomic_var,new_value) 与 std::atomic_store_explicit(&amp;atomic_var,new_value,std::memory_order_release)）。而通过成员函数引用的原子对象是隐式的，所有自由函数都将指向原子对象的指针作为第一个参数。a.load(std::memory_order_acquire) 的等效函数是 std::atomic_load_explicit(&amp;a, std::memory_order_acquire)。这些非成员函数被设计为与 C 语言兼容，因此在所有情况下它们使用指针而不是引用。例如，compare_exchange_weak() 和 compare_exchange_strong() 成员函数的第一个参数（期望值）是引用，而 std::atomic_compare_exchange_weak() 的第二个参数（第一个是对象指针）是指针。std::atomic_compare_exchange_weak_explicit() 还要求指定成功和失败的内存顺序，而 compare/exchange 成员函数同时具有单一的内存顺序形式（默认为 std::memory_order_seq_cst）和一个分别接受成功和失败内存顺序的重载版本。</li>
+<li>C++标准库还提供了以原子方式访问std::shared_ptr&lt;&gt;实例的非成员函数。这有悖于只有原子类型支持原子操作的原则，因为std::shared_ptr&lt;&gt;显然并不是原子类型。然而，C++标准委员会认为提供这些额外函数是相当重要的。可用的原子操作包括load、store、exchange和compare_exchange，这些操作作为对标准原子类型上相同操作的重载，接受std::shared_ptr&lt;&gt;*作为第一个参数。c++20后被std::atomic<std::shared_ptr>模版特化取代而弃用。与其他类型的原子操作一样，也提供了 _explicit 变体，以允许您指定所需的内存顺序，并且可以使用 std::atomic_is_lock_free() 函数来检查实现是否使用锁来确保原子性。
+    &gt; std::shared_ptr<my_data> p; \
+    &gt; std::atomic_load(&amp;p); \
+    &gt; std::shared_ptr<my_data> local(new my_data); \
+    &gt; std::atomic_store(&amp;p,local);</li>
+</ul>
+</li>
+</ul>
+<h2 id="43">4.3 同步操作并强制执行顺序</h2>
+<ul>
+<li>原文介绍了一个用atomic操作(默认全局顺序一致性)来同步非atomic操作的例子。(其中a是非atomic，b是atomic)即一个线程中 write a happens-before b,另一个线程中read b happens-before a,因为默认内存序对同一个变量的读写是全局一致的(同步的)，所以b的write synchronizes-with the read,从而创造了一个 b 的write happens-before b的 read关系，happens-before关系具有传递性，所以有：a的write-&gt;b的write-&gt;b的read-&gt;a的read 这样的强制顺序。接下来详细介绍happens-before的 synchronizes-with两种关系。</li>
+<li>4.3.1 synchronizes-with 关系<ul>
+<li>“同步发生”只能在原子类型之间进行。从根本上说，这种关系只能来源于对原子类型的操作。</li>
+<li>`表达式求值：包括值计算（value computation）和副作用（side effect）。<ul>
+<li>值计算：计算表达式返回的值。这可能涉及确定对象的标识（左值求值，例如，如果表达式返回对某个对象的引用）或读取先前赋给对象的值（纯右值求值，例如，如果表达式返回数字或某些其他值）。</li>
+<li>副作用的启动：访问（读取或写入）由 volatile 左值指定的对象，修改（写入）对象，调用库 I/O 函数，或调用执行任何这些操作的函数。</li>
+</ul>
+</li>
+<li>Sequenced-before(先序于):先序于是<em>同一线程内</em>求值 A 和 B 之间的非对称、传递、成对关系。如果 A 先序于 B（或等效地，B 后序于 A），则 A 的求值将在 B 的求值开始之前完成。(不同于as-if顺序原则(可以乱序只要不影响结果)，sequenced-before是一种强制要求)</li>
+<li>携带依赖：<em>在同一线程内</em>，求值A sequenced-before 求值B，同时也可能将依赖携带到B中（即，B依赖于A），如果以下任何一项为真(1.A 的值用作 B 的操作数 2.A 写入标量对象 M，B 从 M 读取 3.A 将依赖携带到另一个求值 X，并且 X 将依赖携带到 B)</li>
+<li>Modification order：对任何特定原子变量的所有修改都是按照该原子变量特有的总顺序进行的。 所有原子操作都必须满足以下四个要求：<ul>
+<li>1.写-写一致性：如果修改某个原子 M 的求值 A（写入）先序发生于修改 M 的求值 B，则 A 在 M 的修改顺序中出现在 B 之前。(A...B)解释：如果一个写操作 A 在程序顺序上早于另一个写操作 B（比如它们在同一个线程里按顺序执行），那么在修改顺序中，A 也必须排在 B 前面。</li>
+<li>2.读-读一致性：如果对某个原子 M 的值计算 A（读取）先序发生于对 M 的值计算 B，并且如果 A 的值来自对 M 的写入 X，则 B 的值是 X 存储的值，或者是对 M 的副作用 Y 存储的值，而 Y 在 M 的修改顺序中出现在 X 之后。(X...Y) 解释：如果一个线程连续两次读取一个原子变量，并且第一次读到了某个写入 X 的值，那么第二次读要么看到 X 的值，要么看到比 X 更新的值（即修改顺序中 X 之后的写入 Y）。</li>
+<li>3.读-写一致性：如果对某个原子 M 的值计算 A（读取）先序发生于对 M 的操作 B（写入），则 A 的值来自在 M 的修改顺序中早于 B 出现的副作用（写入）X。(X...B)解释：如果一个线程先读了一个值，然后写了一个新值，那么它读到的值一定来自修改顺序中比那个新值更早的写入。</li>
+<li>4.写-读一致性：如果对原子对象 M 的副作用（写入）X 先序发生于对 M 的值计算（读取）B，则求值 B 应从 X 或在 M 的修改顺序中跟随 X 的副作用 Y 中获取其值。(X...Y)解释：如果一个写操作 X 发生在一个读操作 B 之前，那么 B 必须看到 X 的值或比 X 更新的值。</li>
+</ul>
+</li>
+<li>Release sequence：在原子对象 M 上执行释放操作 A 之后，M 的 modification order (修改序列)的最长连续子序列，该子序列由以下各项组成：1由执行 A 的同一线程执行的写入。(直至 C++20) 2 由任何线程对 M 进行的原子读-修改-写操作。被称为以 A 为首的释放序列。重点是最长连续子序列由自己后续的写操作+其他线程的读-改-写操作组成(不能被中断,即不满足以上两个条件的写入操作，任意线程的读取操作不会中断释放序列，他只是不属于释放序列，也就是说释放序列和读取操作同步时，可能不是第一个遇到的读取操作，他和后续的读取操作都可以同步)。(释放的含义就是写操作，所以释放序列就是最长连续写序列).释放序列（Release Sequence）是C++内存模型中一个关键概念，它解决了非顺序一致（non-SC）内存模型下的synchronizes-with传递问题或(非常重要：因为他是同步 读-写-》读-写-》读-写》(每一个读写同步),或者同一线程中的写-》写-》写 对 其他线程的读同步)。</li>
+<li>synchronizes-with：如果线程 A 中的原子存储是释放操作，线程 B 中从同一变量进行的原子加载是获取操作，并且线程 B 中的加载读取了线程 A 中的存储写入的值，则线程 A 中的存储同步于线程 B 中的加载。(保证可以看到A之前的所有写入操作(包括非原子的))</li>
+<li>依赖顺序先于(不用看消费操作不建议用)：在线程之间，如果以下任何一项为真，则求值 A 依赖顺序先于求值 B：1 A对某个原子M执行释放操作，并且在不同的线程中，B对同一原子M执行<em>消费操作</em>，并且B读取了由以A为首的释放序列的任何部分写入的值 2 A 依赖顺序先于 X，并且 X 将依赖携带到 B。</li>
+</ul>
+</li>
+<li>4.3.2 happens-before 关系<ul>
+<li>happens-before:无论线程如何，如果以下任何一项为真，则求值 A happens-before 求值 B：1 A Sequenced-before(同一线程中) B。2 A 线程间happens-before B。(c++20和c++26对传递性作出修改A-&gt;X-&gt;B)</li>
+<li>线程间happens-before：在线程之间，如果以下任何一项为真，则求值 A 线程间先序发生于求值 B：1 A 同步于 B。2 A 依赖顺序先于 B。3 A 同步于某个求值 X，并且 X 先序发生于 B。4 A 先序发生于某个求值 X，并且 X 线程间先序发生于 B。5 A 线程间先序发生于某个求值 X，并且 X 线程间先序发生于 B。</li>
+<li>可见的副作用(副作用：访问（读取或写入）由 volatile 左值指定的对象，修改（写入）对象):标量 M 上的副作用 A（写入）相对于 M 上的值计算 B（读取）是可见的，如果以下两者都为真：1 A happens-before B。2 没有其他对 M 的副作用 X，其中 A happens-before X 并且 X happens-before B。如果副作用 A 相对于值计算 B 是可见的，那么在 M 的修改顺序的最长连续副作用子集中， B 不会在它之前发生(也就是说A是最后一个副作用，且B在它之后发生)，称为可见的副作用序列（由 B 确定的 M 值将是这些副作用之一存储的值）。(即保证了B读取的值是A写入的值，而不是中间副作用X写入的值，可见就是能读取到它写入的值)</li>
+<li>注意：线程间同步可归结为防止数据竞赛（通过建立 happens-before 关系）和定义哪些副作用在什么条件下可见。(见线程间同步理解.md)</li>
+</ul>
+</li>
+<li>4.3.3 atomic操作的memory ordering<ul>
+<li>三类操作<ul>
+<li>1.具有 memory_order_consume 或更强内存顺序的原子加载是消费操作(不建议使用)。</li>
+<li>2.具有 memory_order_acquire 或更强内存顺序的原子加载是<em>获取操作</em>。互斥量上的 lock() 操作也是获取操作。</li>
+<li>3.具有 memory_order_release 或更强内存顺序的原子存储是<em>释放操作</em>。互斥量上的 unlock() 操作也是释放操作。</li>
+</ul>
+</li>
+<li>六种内存序：<ul>
+<li>memory_order_relaxed:对其他读取或写入没有施加同步或排序约束，仅保证此操作的原子性。配合std::atomic_thread_fence实现同步。</li>
+<li>memory_order_consume (c++26中弃用一般也不推荐用)</li>
+<li>memory_order_acquire：<ul>
+<li>当前线程中，在它之后的所有读写操作都不能被重排序到这个 load 操作之前。</li>
+<li>同步效果：所有其他线程中，在释放（release）同一个原子变量之前的写操作，都会对当前线程可见。也就是说，如果你通过 acquire-load 读到了某个 release-store 的值，你就看到了那个线程在 release-store 之前做的所有事情。</li>
+</ul>
+</li>
+<li>memory_order_release：<ul>
+<li>当前线程中，在它之前的所有读写操作都不能被重排序到这个 store 操作之后。</li>
+<li>同步效果：所有当前线程在 release-store 之前所做的写操作，对于那些通过 acquire-load 读取这个原子变量的线程是可见的。</li>
+</ul>
+</li>
+<li>memory_order_acq_rel：<ul>
+<li>所有在它之后的操作不能重排到该操作前（就像 acquire）所有在它之前的操作不能重排到该操作后（就像 release）配合读-改-写 操作实现同步。</li>
+</ul>
+</li>
+<li>memory_order_seq_cst：<ul>
+<li>提供了一个 全序关系（total order），所有 seq_cst 操作在<em>所有线程</em>中看起来是按同一个顺序执行的（全局顺序）。它既是 acquire 又是 release 操作。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>内存排序：<ul>
+<li>宽松排序：标记为 memory_order_relaxed 的原子操作不是同步操作；它们不对并发内存访问施加顺序。它们仅保证原子性和修改顺序一致性。</li>
+<li>释放-获取排序：如果线程 A 中的原子存储标记为 memory_order_release，线程 B 中从同一变量进行的原子加载标记为 memory_order_acquire，并且线程 B 中的加载读取了线程 A 中的存储写入的值，则线程 A 中的存储同步于线程 B 中的加载。<em>同步仅在释放和获取同一原子变量的线程之间建立</em>。从线程 A 的角度来看，所有先序发生于原子存储的内存写入（包括非原子和宽松原子）都成为线程 B 中的可见的副作用。也就是说，一旦原子加载完成，就保证线程 B 可以看到线程 A 写入内存的所有内容。只有当 B 实际返回 A 存储的值或释放序列中稍后的值时，此承诺才成立。互斥锁（例如 std::mutex 或 原子自旋锁）是释放-获取同步的一个示例：当线程 A 释放锁并由线程 B 获取锁时，在线程 A 的上下文中，在临界区内发生的所有事情（在释放之前）都必须对线程 B 可见（在获取之后），线程 B 正在执行相同的临界区。<em>，release-acquire 同步可以有效地同步发生在 release 操作之前的所有内存操作（包括非原子操作）与发生在 acquire 操作之后的所有内存操作（也包括非原子操作）。这是 C++ 内存模型 std::memory_order_release 和 std::memory_order_acquire 的核心目的之一。效果同 fences</em></li>
+<li>顺序一致性排序：标记为 memory_order_seq_cst 的原子操作不仅以与 release/acquire 排序相同的方式对内存进行排序（在一个线程中存储操作之前发生的所有内容都成为执行加载操作的线程中的可见副作用），而且还为<em>所有如此标记的原子操作</em>(而不仅仅是在同一原子变量间，所有的变量都是一致顺序的)建立单一的总体修改顺序(而 释放-获取 排序只有 获取线程 和 释放线程 两个线程中的特定 <em>一个原子变量上</em> 建立了统一的修改顺序(如果A-&gt;B A-&gt;C,B和C之间没有同步关系))。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>5.3.4 release sequences and synchronizes-with<ul>
+<li>可以在一个原子变量的<em>存储（store）</em>和另一个线程从该原子变量<em>加载（load）</em>之间获得一种同步关系，即使在存储和加载之间有一系列的<em>读改写</em>操作，只要所有的操作都被正确标记。在链中的任何原子<em>读改写</em>操作都可以<em>任意的内存排序</em>（甚至是 memory_order_relaxed）。</li>
+</ul>
+</li>
+<li>5.3.5 fences<ul>
+<li>栅栏操作在不修改任何数据的情况下强制执行内存排序约束，通常与使用 memory_order_relaxed 排序约束的原子操作结合使用。</li>
+<li>栅栏的总体概念：如果一个获取操作看到了一个在释放屏障之后发生的存储的结果，那么这个屏障与该获取操作同步；如果一个在获取屏障之前发生的加载看到了一个释放操作的结果，那么这个释放操作与获取屏障同步。当然，您可以在两侧都有屏障，在这种情况下，如果一个在获取屏障之前发生的加载看到了一个在释放屏障之后发生的存储所写入的值，那么释放屏障与获取屏障同步。</li>
+<li>两项操作不被栅栏分隔，就不是有序的。只有当栅栏处于存储到x和存储到y之间时，它才会强加一个顺序。当然，栅栏的存在或缺失不会影响由于其他原子操作而存在的 happens-before 关系中的任何强制顺序。</li>
+<li>使用原子操作强制排序的真正好处是，它们可以对非原子操作强制排序，从而避免未定义的数据竞争行为。</li>
+<li>atomic_thread_fence的三种同步<ul>
+<li>根据 memory_order 的指示，建立非原子和宽松原子访问的内存同步顺序，而无需关联的原子操作。但请注意，如下所述，至少需要一个原子操作来建立同步。atomic_thread_fence 施加的同步约束比具有相同 std::memory_order 的原子存储操作更强。 虽然原子存储-释放操作阻止所有先前的读取和写入移动到存储-释放之后，但具有 std::memory_order_release 排序的 atomic_thread_fence 阻止所有先前的读取和写入移动到所有后续存储之后。栅栏-栅栏同步可用于向一系列宽松原子操作添加同步(具体例子和详细要求见cppreference atomic_thread_fence)<ul>
+<li>1.栅栏-原子(获取)同步<ul>
+<li>同时满足：1 存在原子存储 X（具有任何内存顺序），2 Y 读取由 X 写入的值（或者如果 X 是释放操作，则读取由以 X 开头的释放序列将写入的值），3 F 在线程 A 中先于 X 排序。</li>
+<li>在这种情况下，线程 A 中 先于 F 排序的所有非原子和宽松原子存储将 先于 线程 B 中在 Y 之后从相同位置进行的所有非原子和宽松原子加载。</li>
+</ul>
+</li>
+<li>2.原子(释放)-栅栏同步：<ul>
+<li>同时满足：1 存在原子读取 Y（具有任何内存顺序），2 Y 读取由 X 写入的值（或由以 X 开头的释放序列写入的值），3 Y 在线程 B 中先于 F 排序。</li>
+<li>在这种情况下，线程 A 中 先于 X 排序的所有非原子和宽松原子存储将 先于 线程 B 中在 F 之后从相同位置进行的所有非原子和宽松原子加载。</li>
+</ul>
+</li>
+<li>3.栅栏-栅栏同步：<ul>
+<li>同时满足：1 存在原子写入 X（具有任何内存顺序）在线程 A 中修改 原子对象M，2 FA 在线程 A 中先于 X 排序，3 线程 B 中存在原子读取 Y（具有任何内存顺序），4 Y 读取由 X 写入的值（或者如果 X 是释放操作，则读取由以 X 开头的释放序列将写入的值），5 Y 在线程 B 中先于 FB 排序。</li>
+<li>在这种情况下，线程 A 中 先于 FA 排序的所有非原子和宽松原子存储将 先于 线程 B 中在 FB 之后从相同位置进行的所有非原子和宽松原子加载。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>总结就是 存在一个原子变量M，一个线程中的释放操作X 和 另一个线程中的获取操作 Y 同步，存在 X 之前的栅栏FA 或 在 Y 之后的栅栏FB，那么FA之前的所有原子/非原子释放操作 可以和 Y后的所有原子/非原子加载操作同步，FB之后的所有原子/非原子释放操作 可以和 X 之前的所有原子/非原子加载操作同步，或者同时满足(范围这是FA之前的所有释放操作 和 FB之后的加载操作 )</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>5.3.6 ordering nonatomic operation with atomics<ul>
+<li>通过使用原子操作来对非原子操作进行排序，此时 happens-before 关系中的 sequenced-before 关系就变得非常重要。如果一个非原子操作 sequenced-before 某个原子操作，而该原子操作又 happens-before 另一个线程中的某个操作，那么这个非原子操作也happens-before 另一个线程中的操作。</li>
+<li>atomic_flog 可以实现自旋锁(spinlock),lock() 函数：使用 memory_order_acquire 顺序执行 flag.test_and_set() 循环；unlock() 使用 memory_order_release 顺序执行 flag.clear()。 当第一个线程调用lock()时，该标志最初是清除的，因此第一次调用 test_and_set() 将设置该标志并返回false，表示该线程现在拥有锁，并终止循环。此时调用lock（）的任何其他线程都将发现该标志已经设置，并将在 test_and_set() 循环中被阻塞。</li>
+</ul>
+</li>
+</ul>
+<h2 id="44">4.4 总结</h2>
+<ul>
+<li>在本章中，我介绍了c++ 11内存模型，以及为线程间同步提供基础的原子操作。这包括std::atomic&lt;&gt;类模板的专门化提供的基本原子类型，以及主std::atomic&lt;&gt;模板提供的，对这些类型的操作的泛型原子接口，，以及各种内存排序的选项。</li>
+<li>我们还研究了栅栏以及如何将它们与原子类型上的操作配对以强制排序。最后是如何使用原子操作来强制不同线程上的非原子操作之间的排序。</li>
+<li></li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../03%E5%90%8C%E6%AD%A5%E5%B9%B6%E5%8F%91%E6%93%8D%E4%BD%9C/" class="btn btn-neutral float-left" title="3同步并发操作"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../05%E5%9F%BA%E4%BA%8E%E9%94%81%E7%9A%84%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="btn btn-neutral float-right" title="5基于锁的并发数据结构设计">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../03%E5%90%8C%E6%AD%A5%E5%B9%B6%E5%8F%91%E6%93%8D%E4%BD%9C/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../05%E5%9F%BA%E4%BA%8E%E9%94%81%E7%9A%84%E5%B9%B6%E5%8F%91%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
