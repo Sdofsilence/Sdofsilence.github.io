@@ -29,3 +29,5 @@
 * 资源
     * [大文件lfs无法上传记录](资源/大文件lfs无法上传记录.md)
     * [并发编程相关网页](资源/并发编程相关网页.md)
+    * art_of_multiprocessor_programming
+        * [README](资源/art_of_multiprocessor_programming/README.md)
