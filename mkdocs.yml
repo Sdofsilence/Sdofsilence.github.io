@@ -1,0 +1,8 @@
+# 这是mkdocs的配置文件，不该在这个层级，只是为了统一记录在这里，实际使用的时候把它放在外层
+# 并且把当前的git项目clone在根目录下/docs目录(默认文件路径)中
+site_name: My Blog
+theme: readthedocs
+markdown_extensions:
+  - extra
+  - tables
+  - fenced_code
