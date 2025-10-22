@@ -1,4 +1,4 @@
 # 排除
 /101.资源/books_of_leeHanley/books/
-/6.multithreads_and_parallines/资源/art_of_multiprocessor_programming/
-/6.multithreads_and_parallines/资源/*.pdf
+/006.multithreads_and_parallines/资源/art_of_multiprocessor_programming/
+/006.multithreads_and_parallines/资源/*.pdf
