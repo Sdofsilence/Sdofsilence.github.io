@@ -1,4 +1,4 @@
-# 014.__WorkingTools__
+# 014.workingTools
 
 ## 目录
 
@@ -22,7 +22,6 @@
         * [.ignore文件语法](1开发相关/git/.ignore文件语法.md)
         * [git_workflow](1开发相关/git/git_workflow.md)
         * [git命令参数解释](1开发相关/git/git命令参数解释.md)
-        * [readme](1开发相关/git/readme.md)
     * ms_gsl微软core_guidelines实现
         * [ms_gls_coreguidelines](1开发相关/ms_gsl微软core_guidelines实现/ms_gls_coreguidelines.md)
     * vs_code
@@ -39,7 +38,6 @@
         * [wireshark](1开发相关/wireshark/wireshark.md)
     * 函数调用关系分析_项目地图_deepwiki
         * [deepwiki_open开源_ollama部署](1开发相关/函数调用关系分析_项目地图_deepwiki/deepwiki_open开源_ollama部署.md)
-        * [readme](1开发相关/函数调用关系分析_项目地图_deepwiki/readme.md)
 * 2其他
     * pdf在线编辑
         * [url](2其他/pdf在线编辑/url.md)
@@ -52,5 +50,4 @@
     * wsl
         * [wsl](2其他/wsl/wsl.md)
     * 双拼
-        * [readme](2其他/双拼/readme.md)
         * [小狼毫rime](2其他/双拼/小狼毫rime.md)

@@ -8,11 +8,9 @@
 * fmt
     * [fmt](fmt/fmt.md)
 * html解析
-    * [readme](html解析/readme.md)
 * json库
     * [json库对比](json库/json库对比.md)
 * log4c
-    * [readme](log4c/readme.md)
 * make工具
 * markdown2html
     * [markdown2html](markdown2html/markdown2html.md)

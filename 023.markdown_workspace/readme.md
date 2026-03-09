@@ -29,7 +29,6 @@
 * 文本20230220
     * [life_learning_synopsis](文本20230220/life_learning_synopsis.md)
     * [markdown_learning](文本20230220/markdown_learning.md)
-    * [readme](文本20230220/readme.md)
     * [shortcuts_vscode](文本20230220/shortcuts_vscode.md)
     * [shortcuts_window](文本20230220/shortcuts_window.md)
     * .vscode

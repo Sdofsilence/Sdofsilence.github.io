@@ -3,7 +3,6 @@
 ## 目录
 
 * nosql
-    * [readme](nosql/readme.md)
 * sql
     * [00.sql](sql/00.sql.md)
     * [00.sql必知必会总结](sql/00.sql必知必会总结.md)
