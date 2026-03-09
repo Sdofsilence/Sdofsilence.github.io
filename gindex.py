@@ -43,7 +43,7 @@ def generate_nested_list(root_path, current_path, base_indent=0):
         item_path = os.path.join(current_path, item)
         if os.path.isdir(item_path) and not is_ignored_dir(item):
             directories.append(item)
-        elif os.path.isfile(item_path) and item.endswith('.md') and item != 'index.md':
+        elif os.path.isfile(item_path) and item.endswith('.md') and item != 'readme.md':
             markdown_files.append(item)
     
     # 处理文件（先列出文件）
@@ -73,7 +73,7 @@ def generate_nested_list(root_path, current_path, base_indent=0):
     
     return result
 
-def generate_markdown_index(root_path, output_file="index.md"):
+def generate_markdown_index(root_path, output_file="readme.md"):
     """
     生成完整的Markdown索引文件
     
@@ -128,7 +128,7 @@ def main():
     # 为每个子目录生成index.md文件
     for directory in directories:
         dir_path = os.path.join(current_dir, directory)
-        output_file = os.path.join(dir_path, "index.md")
+        output_file = os.path.join(dir_path, "readme.md")
         
         try:
             generate_markdown_index(dir_path, output_file)
