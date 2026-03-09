@@ -6,8 +6,10 @@
     * CMake
         * [add_dependency_add_custom_command_target](1开发相关/CMake/add_dependency_add_custom_command_target.md)
         * [cmake](1开发相关/CMake/cmake.md)
+        * [cmake_language语法](1开发相关/CMake/cmake_language语法.md)
         * [cmake_schema_and_workflow](1开发相关/CMake/cmake_schema_and_workflow.md)
         * [cmake_vs_vsstudio_dev项目github参考](1开发相关/CMake/cmake_vs_vsstudio_dev项目github参考.md)
+        * [cmake预设变量](1开发相关/CMake/cmake预设变量.md)
         * [一些实践知乎](1开发相关/CMake/一些实践知乎.md)
     * c++包管理
         * vcpkg
