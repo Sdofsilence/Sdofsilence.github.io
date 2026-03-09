@@ -91,3 +91,8 @@
 
 ### 数值计算
 * iota accumalate inner_product adjacent_defference partial_sum [reduce c++17]
+
+## cppreference_stl_算法需要注意的事项全局和成员的不同
+
+* 全局find是查找一个元素，string find是查找一个子串，find_first_of是查找一个子串中的任意一个元素也可以是一个字符
+* 全局replace是替换一个元素，string replace是替换一个子串范围成为另一个范围(完完全全的不一样)
